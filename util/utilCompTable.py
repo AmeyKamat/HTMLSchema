@@ -2,6 +2,12 @@
 from HTMLParser import HTMLParser
 import urllib2
 import re
+import sys
+import json
+
+sys.path.append("../")
+
+from resources.schema.compitibilitySchema import HTML
 
 # Definations of frequently used variable
 url = "http://www.w3schools.com/tags/"
@@ -47,7 +53,9 @@ def parseTag(data):
 
 def buildJSON():
 	i=2
+	count = 1.0
 	attempt = 1
+	jsonArray =[]
 	print "Collecting data..."
 	global compTable
 	repeat = []
@@ -67,9 +75,17 @@ def buildJSON():
 				print "ERROR: All attempts of fetching failed. Terminating the program" 
 				exit(0)
 		parser.feed(tag_ref)
-		print tag + " : " + str(compTable) + " : " + str(i) + " : " + str(i<length) + " : " + str(length)
+		new_html = HTML(tag, compTable)
+		jsonArray.append(new_html)
+		percent = (count/length)*100
+		count += 1
+		print "Tag {0} added.....{1:.0F}% Completed.".format(tag, percent)
 		compTable = []
 		i = i+1
+	fileContent = json.dumps([ob.__dict__ for ob in jsonArray])
+	f = open("../resources/data/compitibilityTable.json", "w")
+	f.write(fileContent)
+	f.close()
 
 # read from http request
 try:
